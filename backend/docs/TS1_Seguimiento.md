@@ -45,10 +45,11 @@ Diagrama (MER simplificado):
 - Afinar migraciones y seeding para que cualquier entorno local arranque en minutos.
 
 ## 6. Repositorios (GitHub)
-- Backend (Laravel): [pendiente de publicar]
-- Frontend (React): [pendiente de publicar]
+- Repositorio único: https://github.com/AndriySym/CheapParts
+  - Backend (Laravel) en `/backend`
+  - Frontend (React) en `/frontend` (próximamente)
 
-Una vez creados, añadiré enlaces y un README breve con cómo arrancar:
+El README principal incluye:
 - Backend: dependencias, variables de entorno y `php artisan migrate --seed`.
 - Frontend: dependencias, variables de entorno (URL de la API) y `npm run dev`.
 
