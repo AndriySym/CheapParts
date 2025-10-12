@@ -53,11 +53,6 @@ La API estará disponible en `http://localhost:8000`.
 
 _En desarrollo_
 
-## Documentación
-
-- [Tarea de Seguimiento 1 (TS1)](./docs/TS1_Seguimiento.md)
-- [Diagrama MER](./docs/db_mer.png)
-
 ## Licencia
 
 Proyecto educativo - Andriy Symonenko Oliynyk
