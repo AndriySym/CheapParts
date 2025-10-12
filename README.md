@@ -55,8 +55,8 @@ _En desarrollo_
 
 ## Documentación
 
-- [Tarea de Seguimiento 1 (TS1)](./backend/docs/TS1_Seguimiento.md)
-- [Diagrama MER](./backend/docs/db_mer.png)
+- [Tarea de Seguimiento 1 (TS1)](./docs/TS1_Seguimiento.md)
+- [Diagrama MER](./docs/db_mer.png)
 
 ## Licencia
 
