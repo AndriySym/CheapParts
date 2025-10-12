@@ -1,0 +1,31 @@
+erDiagram
+  USERS ||--o{ CART_ITEMS : "1:N tiene"
+  PRODUCTS ||--o{ CART_ITEMS : "1:N tiene"
+
+  USERS {
+    int id PK
+    string name
+    string email
+    string password
+  }
+
+  PRODUCTS {
+    int id PK
+    string name
+    text description
+    int stock
+    string brand
+    string category
+    string image_url
+    int price_cents
+  }
+
+  CART_ITEMS {
+    int id PK
+    int user_id FK
+    int product_id FK
+    int quantity
+  }
+
+
+
