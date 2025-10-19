@@ -21,13 +21,15 @@ class ProductFactory extends Factory
         $category = $this->faker->randomElement(['CPU', 'GPU', 'Motherboard', 'RAM', 'Storage', 'PSU', 'Case', 'Cooling']);
         $priceCents = $this->faker->numberBetween(1999, 299999); // 19.99€ - 2999.99€
 
+        $imageId = $this->faker->numberBetween(1, 1000);
+        
         return [
             'name' => $name,
             'description' => $this->faker->paragraphs(2, true),
             'stock' => $this->faker->numberBetween(0, 200),
             'brand' => $brand,
             'category' => $category,
-            'image_url' => $this->faker->imageUrl(640, 480, 'technology', true),
+            'image_url' => "https://picsum.photos/seed/{$imageId}/640/480",
             'price_cents' => $priceCents,
         ];
     }
