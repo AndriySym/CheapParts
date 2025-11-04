@@ -7,7 +7,7 @@ Tienda online de componentes informáticos construida con React (frontend) y Lar
 ```
 CheapPartsAndriy/
 ├── backend/        # API Laravel + Sanctum
-├── frontend/       # React + Vite + TypeScript (próximamente)
+├── frontend/       # React + Vite + TypeScript
 └── README.md
 ```
 
