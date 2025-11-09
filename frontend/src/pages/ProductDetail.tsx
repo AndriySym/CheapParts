@@ -3,6 +3,23 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { productsAPI, cartAPI } from '../lib/api';
 import type { Product } from '../types';
 
+// Función para traducir categorías
+const translateCategory = (category: string): string => {
+  const translations: Record<string, string> = {
+    'CPU': 'Procesadores',
+    'GPU': 'Tarjetas Gráficas',
+    'RAM': 'Memoria RAM',
+    'Storage': 'Almacenamiento',
+    'Motherboard': 'Placas Base',
+    'PSU': 'Fuentes de Alimentación',
+    'Case': 'Cajas',
+    'Cooling': 'Refrigeración',
+    'Peripherals': 'Periféricos',
+    'Monitor': 'Monitores'
+  };
+  return translations[category] || category;
+};
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -56,53 +73,71 @@ export default function ProductDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
+        <div className="bg-white rounded-lg shadow-lg p-8 flex items-center justify-center">
           {product.image_url && (
             <img
               src={`http://localhost:8000${product.image_url}`}
               alt={product.name}
-              className="w-full rounded shadow-lg"
+              className="max-w-full max-h-96 object-contain"
             />
           )}
         </div>
-        <div>
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <p className="text-gray-600 text-lg mb-2">{product.brand}</p>
-          <p className="text-sm text-gray-500 mb-4">{product.category}</p>
-          <p className="text-3xl font-bold text-blue-600 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              {translateCategory(product.category)}
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold mb-3">{product.name}</h1>
+          <p className="text-gray-600 text-lg mb-6">{product.brand}</p>
+          <p className="text-4xl font-bold text-blue-600 mb-6">
             {(product.price_cents / 100).toFixed(2)} €
           </p>
-          <p className="text-gray-700 mb-6">{product.description}</p>
-          <div className="mb-6">
-            <p className="text-sm mb-2">
-              Stock disponible: <span className="font-semibold">{product.stock}</span>
-            </p>
-            <div className="flex items-center gap-4 mb-4">
-              <label className="font-medium">Cantidad:</label>
-              <div className="flex items-center gap-2">
+          <div className="border-t border-gray-200 pt-6 mb-6">
+            <h2 className="font-semibold text-lg mb-3">Descripción</h2>
+            <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          </div>
+          <div className="border-t border-gray-200 pt-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-gray-700 font-medium">Stock disponible:</span>
+              <span className={`font-bold ${product.stock > 10 ? 'text-green-600' : product.stock > 0 ? 'text-orange-600' : 'text-red-600'}`}>
+                {product.stock > 0 ? `${product.stock} unidades` : 'Agotado'}
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="font-medium text-gray-700">Cantidad:</label>
+              <div className="flex items-center border border-gray-300 rounded-lg">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-l-lg transition"
                 >
-                  -
+                  −
                 </button>
-                <span className="px-4">{quantity}</span>
+                <span className="px-6 py-2 font-semibold">{quantity}</span>
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-r-lg transition"
                 >
                   +
                 </button>
               </div>
             </div>
           </div>
-          <button
-            onClick={addToCart}
-            disabled={adding || product.stock === 0}
-            className="w-full bg-blue-500 text-white py-3 rounded text-lg hover:bg-blue-600 disabled:bg-gray-400"
-          >
-            {adding ? 'Añadiendo...' : product.stock === 0 ? 'Sin Stock' : 'Añadir al Carrito'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={addToCart}
+              disabled={adding || product.stock === 0}
+              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition transform hover:scale-105"
+            >
+              {adding ? 'Añadiendo...' : product.stock === 0 ? 'Sin Stock' : '🛒 Añadir al Carrito'}
+            </button>
+            <button
+              onClick={() => navigate('/products')}
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              ← Volver
+            </button>
+          </div>
         </div>
       </div>
     </div>

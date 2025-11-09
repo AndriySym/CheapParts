@@ -38,3 +38,6 @@ Thumbs.db
 *.swo
 *~
 
+# Documentation (not to be committed)
+/docs/
+

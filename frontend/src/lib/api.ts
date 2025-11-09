@@ -41,9 +41,20 @@ export const authAPI = {
 };
 
 export const productsAPI = {
-  getAll: (params?: { q?: string; page?: number }) =>
+  getAll: (params?: { 
+    q?: string; 
+    page?: number;
+    category?: string;
+    brand?: string;
+    min_price?: number;
+    max_price?: number;
+    in_stock?: boolean;
+    sort_by?: string;
+    sort_order?: string;
+  }) =>
     api.get('/products', { params }),
   getOne: (id: number) => api.get(`/products/${id}`),
+  getFilters: () => api.get('/products/filters/available'),
 };
 
 export const cartAPI = {
@@ -53,5 +64,11 @@ export const cartAPI = {
   updateItem: (id: number, data: { quantity: number }) =>
     api.put(`/cart/${id}`, data),
   removeItem: (id: number) => api.delete(`/cart/${id}`),
+};
+
+export const paymentAPI = {
+  createCheckoutSession: (items: any[]) => api.post('/checkout/create-session', { items }),
+  getCheckoutSuccess: (sessionId: string) =>
+    api.get(`/checkout/success?session_id=${sessionId}`),
 };
 
