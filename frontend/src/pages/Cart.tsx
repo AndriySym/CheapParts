@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { cartAPI, paymentAPI } from '../lib/api';
 import type { CartItem } from '../types';
 // @ts-ignore - sweetalert2 types are included in the package
-import Swal from 'sweetalert2/dist/sweetalert2.all.js';
+import Swal from 'sweetalert2';
 
 // Función para traducir categorías
 const translateCategory = (category: string | null): string => {

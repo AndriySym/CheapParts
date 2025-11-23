@@ -11,5 +11,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['sweetalert2']
+  },
+  build: {
+    commonjsOptions: {
+      include: [/sweetalert2/, /node_modules/]
+    }
   }
 })

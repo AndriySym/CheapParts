@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { productsAPI, authAPI } from '../lib/api';
 import type { Product } from '../types';
 // @ts-ignore - sweetalert2 types are included in the package
-import Swal from 'sweetalert2/dist/sweetalert2.all.js';
+import Swal from 'sweetalert2';
 
 export default function Admin() {
   const navigate = useNavigate();
