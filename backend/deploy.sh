@@ -95,6 +95,9 @@ php artisan migrate --force
 echo "Running seeders..."
 php artisan db:seed --force
 
+echo "Creating storage link..."
+php artisan storage:link || echo "Storage link already exists or failed"
+
 echo "Starting nginx..."
 exec /start.sh
 
