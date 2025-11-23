@@ -11,8 +11,10 @@ if [ -n "$DATABASE_URL" ]; then
     
     # Also parse and set individual variables as fallback
     # Use PHP to parse the URL properly (more reliable than bash string manipulation)
+    # Replace postgresql:// with postgres:// for PHP parse_url compatibility
+    DB_URL_FOR_PARSE=$(echo "$DATABASE_URL" | sed 's|postgresql://|postgres://|')
     DB_PARSE_RESULT=$(php -r "
-        \$url = parse_url('$DATABASE_URL');
+        \$url = parse_url('$DB_URL_FOR_PARSE');
         echo json_encode([
             'host' => \$url['host'] ?? '',
             'port' => \$url['port'] ?? '5432',
