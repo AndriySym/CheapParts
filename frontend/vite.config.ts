@@ -5,16 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      // Ensure proper module resolution
-    }
+    dedupe: ['sweetalert2']
   },
   optimizeDeps: {
     include: ['sweetalert2']
-  },
-  build: {
-    commonjsOptions: {
-      include: [/sweetalert2/, /node_modules/]
-    }
   }
 })
