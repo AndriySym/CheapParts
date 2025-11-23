@@ -10,28 +10,36 @@ if [ -n "$DATABASE_URL" ]; then
     export DB_URL="$DATABASE_URL"
     
     # Also parse and set individual variables as fallback
-    # Parse postgresql://user:pass@host:port/database
+    # Parse postgresql://user:pass@host:port/database or postgresql://user:pass@host/database
     # Remove protocol prefix first
     DB_STRING="${DATABASE_URL#postgresql://}"
     
-    # Extract components
+    # Extract user:password
     DB_USER_PASS="${DB_STRING%%@*}"
     DB_USERNAME="${DB_USER_PASS%%:*}"
     DB_PASSWORD="${DB_USER_PASS#*:}"
     
+    # Extract host:port/database or host/database
     DB_HOST_PORT_DB="${DB_STRING#*@}"
-    DB_HOST_PORT="${DB_HOST_PORT_DB%%/*}"
-    DB_HOST="${DB_HOST_PORT%%:*}"
-    DB_PORT="${DB_HOST_PORT#*:}"
     DB_DATABASE="${DB_HOST_PORT_DB#*/}"
-    
     # Remove query string if present
     DB_DATABASE="${DB_DATABASE%%\?*}"
+    
+    # Extract host and port
+    DB_HOST_PORT="${DB_HOST_PORT_DB%%/*}"
+    # Check if port is present (contains :)
+    if [[ "$DB_HOST_PORT" == *:* ]]; then
+        DB_HOST="${DB_HOST_PORT%%:*}"
+        DB_PORT="${DB_HOST_PORT#*:}"
+    else
+        DB_HOST="$DB_HOST_PORT"
+        DB_PORT="5432"  # Default PostgreSQL port
+    fi
     
     export DB_USERNAME
     export DB_PASSWORD
     export DB_HOST
-    export DB_PORT="${DB_PORT:-5432}"
+    export DB_PORT
     export DB_DATABASE
     export DB_CONNECTION="pgsql"
     
