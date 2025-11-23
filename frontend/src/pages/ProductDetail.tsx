@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productsAPI, cartAPI } from '../lib/api';
 import type { Product } from '../types';
+// @ts-ignore - sweetalert2 types are included in the package
 import Swal from 'sweetalert2';
 
 // Función para traducir categorías
-const translateCategory = (category: string): string => {
+const translateCategory = (category: string | null): string => {
+  if (!category) return '';
   const translations: Record<string, string> = {
     'CPU': 'Procesadores',
     'GPU': 'Tarjetas Gráficas',

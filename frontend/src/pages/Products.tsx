@@ -20,7 +20,8 @@ interface Filters {
 }
 
 // Función para traducir categorías
-const translateCategory = (category: string): string => {
+const translateCategory = (category: string | null): string => {
+  if (!category) return '';
   const translations: Record<string, string> = {
     'CPU': 'Procesadores',
     'GPU': 'Tarjetas Gráficas',
