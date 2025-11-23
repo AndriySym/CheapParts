@@ -40,6 +40,32 @@ if [ -n "$DATABASE_URL" ]; then
     echo "Port: $DB_PORT"
     echo "Database: $DB_DATABASE"
     echo "Username: $DB_USERNAME"
+    
+    # Update .env file with parsed database configuration
+    if [ -f /var/www/html/.env ]; then
+        # Update existing .env
+        sed -i "s|^DB_CONNECTION=.*|DB_CONNECTION=pgsql|" /var/www/html/.env || echo "DB_CONNECTION=pgsql" >> /var/www/html/.env
+        sed -i "s|^DB_HOST=.*|DB_HOST=$DB_HOST|" /var/www/html/.env || echo "DB_HOST=$DB_HOST" >> /var/www/html/.env
+        sed -i "s|^DB_PORT=.*|DB_PORT=$DB_PORT|" /var/www/html/.env || echo "DB_PORT=$DB_PORT" >> /var/www/html/.env
+        sed -i "s|^DB_DATABASE=.*|DB_DATABASE=$DB_DATABASE|" /var/www/html/.env || echo "DB_DATABASE=$DB_DATABASE" >> /var/www/html/.env
+        sed -i "s|^DB_USERNAME=.*|DB_USERNAME=$DB_USERNAME|" /var/www/html/.env || echo "DB_USERNAME=$DB_USERNAME" >> /var/www/html/.env
+        sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD|" /var/www/html/.env || echo "DB_PASSWORD=$DB_PASSWORD" >> /var/www/html/.env
+        sed -i "s|^DB_URL=.*|DB_URL=$DATABASE_URL|" /var/www/html/.env || echo "DB_URL=$DATABASE_URL" >> /var/www/html/.env
+    else
+        # Create .env from example if it doesn't exist
+        if [ -f /var/www/html/.env.example ]; then
+            cp /var/www/html/.env.example /var/www/html/.env
+        fi
+        # Add database config
+        echo "DB_CONNECTION=pgsql" >> /var/www/html/.env
+        echo "DB_HOST=$DB_HOST" >> /var/www/html/.env
+        echo "DB_PORT=$DB_PORT" >> /var/www/html/.env
+        echo "DB_DATABASE=$DB_DATABASE" >> /var/www/html/.env
+        echo "DB_USERNAME=$DB_USERNAME" >> /var/www/html/.env
+        echo "DB_PASSWORD=$DB_PASSWORD" >> /var/www/html/.env
+        echo "DB_URL=$DATABASE_URL" >> /var/www/html/.env
+    fi
+    echo ".env file updated with database configuration"
 fi
 
 echo "Running composer..."
