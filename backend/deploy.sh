@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Running composer..."
-composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
-
-# Parse DATABASE_URL if it exists and set individual DB variables
+# Parse DATABASE_URL FIRST, before any Laravel commands
 if [ -n "$DATABASE_URL" ]; then
     echo "Parsing DATABASE_URL..."
     # Set DB_URL for Laravel (Laravel uses DB_URL)
@@ -23,6 +20,9 @@ if [ -n "$DATABASE_URL" ]; then
         echo "Host: $DB_HOST, Database: $DB_DATABASE"
     fi
 fi
+
+echo "Running composer..."
+composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 
 echo "Caching config..."
 php artisan config:cache
