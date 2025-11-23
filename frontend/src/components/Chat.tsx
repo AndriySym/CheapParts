@@ -62,7 +62,7 @@ export default function Chat() {
       setMessages(newMessages);
       
       // Detectar y buscar productos en la última respuesta del asistente
-      const lastAssistantMessage = newMessages.filter(m => m.role === 'assistant').pop();
+      const lastAssistantMessage = newMessages.filter((m: Message) => m.role === 'assistant').pop();
       if (lastAssistantMessage) {
         // Buscar productos inmediatamente
         detectAndFetchProducts(lastAssistantMessage.content);
@@ -194,7 +194,7 @@ export default function Chat() {
             
             const pName = p.name.toLowerCase();
             const pBrand = p.brand.toLowerCase();
-            const searchBrand = search.brand.toLowerCase();
+            const searchBrand = search.brand?.toLowerCase() || '';
             
             // Debe coincidir la marca
             if (!pBrand.includes(searchBrand) && !searchBrand.includes(pBrand)) return false;
@@ -226,7 +226,7 @@ export default function Chat() {
 
   // Renderizar mensaje con productos detectados
   const renderMessage = (content: string) => {
-    const parts: (string | JSX.Element)[] = [];
+    const parts: (string | React.ReactElement)[] = [];
     let lastIndex = 0;
     const renderedProductIds = new Set<number>(); // Para evitar renderizar el mismo producto múltiples veces
     
