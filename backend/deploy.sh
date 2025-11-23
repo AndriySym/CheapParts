@@ -10,31 +10,23 @@ if [ -n "$DATABASE_URL" ]; then
     export DB_URL="$DATABASE_URL"
     
     # Also parse and set individual variables as fallback
-    # Parse postgresql://user:pass@host:port/database or postgresql://user:pass@host/database
-    # Remove protocol prefix first
-    DB_STRING="${DATABASE_URL#postgresql://}"
+    # Use PHP to parse the URL properly (more reliable than bash string manipulation)
+    DB_PARSE_RESULT=$(php -r "
+        \$url = parse_url('$DATABASE_URL');
+        echo json_encode([
+            'host' => \$url['host'] ?? '',
+            'port' => \$url['port'] ?? '5432',
+            'user' => \$url['user'] ?? '',
+            'pass' => \$url['pass'] ?? '',
+            'path' => ltrim(\$url['path'] ?? '', '/')
+        ]);
+    ")
     
-    # Extract user:password
-    DB_USER_PASS="${DB_STRING%%@*}"
-    DB_USERNAME="${DB_USER_PASS%%:*}"
-    DB_PASSWORD="${DB_USER_PASS#*:}"
-    
-    # Extract host:port/database or host/database
-    DB_HOST_PORT_DB="${DB_STRING#*@}"
-    DB_DATABASE="${DB_HOST_PORT_DB#*/}"
-    # Remove query string if present
-    DB_DATABASE="${DB_DATABASE%%\?*}"
-    
-    # Extract host and port
-    DB_HOST_PORT="${DB_HOST_PORT_DB%%/*}"
-    # Check if port is present (contains :)
-    if [[ "$DB_HOST_PORT" == *:* ]]; then
-        DB_HOST="${DB_HOST_PORT%%:*}"
-        DB_PORT="${DB_HOST_PORT#*:}"
-    else
-        DB_HOST="$DB_HOST_PORT"
-        DB_PORT="5432"  # Default PostgreSQL port
-    fi
+    DB_HOST=$(echo "$DB_PARSE_RESULT" | php -r "echo json_decode(file_get_contents('php://stdin'))->host;")
+    DB_PORT=$(echo "$DB_PARSE_RESULT" | php -r "echo json_decode(file_get_contents('php://stdin'))->port;")
+    DB_USERNAME=$(echo "$DB_PARSE_RESULT" | php -r "echo json_decode(file_get_contents('php://stdin'))->user;")
+    DB_PASSWORD=$(echo "$DB_PARSE_RESULT" | php -r "echo json_decode(file_get_contents('php://stdin'))->pass;")
+    DB_DATABASE=$(echo "$DB_PARSE_RESULT" | php -r "echo json_decode(file_get_contents('php://stdin'))->path;")
     
     export DB_USERNAME
     export DB_PASSWORD
