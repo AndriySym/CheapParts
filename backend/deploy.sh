@@ -45,7 +45,14 @@ fi
 echo "Running composer..."
 composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 
+echo "Verifying database variables..."
+echo "DB_CONNECTION: ${DB_CONNECTION:-not set}"
+echo "DB_HOST: ${DB_HOST:-not set}"
+echo "DB_DATABASE: ${DB_DATABASE:-not set}"
+
 echo "Caching config..."
+# Clear config cache first to ensure fresh read
+php artisan config:clear
 php artisan config:cache
 
 echo "Caching routes..."
