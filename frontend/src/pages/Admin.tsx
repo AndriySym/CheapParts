@@ -121,8 +121,8 @@ export default function Admin() {
       name: product.name,
       description: product.description || '',
       stock: product.stock,
-      brand: product.brand,
-      category: product.category,
+      brand: product.brand || '',
+      category: product.category || '',
       image_url: product.image_url || '',
       price_cents: product.price_cents,
     });
