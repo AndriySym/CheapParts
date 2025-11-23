@@ -83,7 +83,7 @@ export default function Admin() {
 
     try {
       if (editingProduct) {
-        await productsAPI.update(editingProduct.id, formData);
+        await (productsAPI as any).update(editingProduct.id, formData);
         await Swal.fire({
           icon: 'success',
           title: '¡Producto actualizado!',
@@ -92,7 +92,7 @@ export default function Admin() {
           showConfirmButton: false,
         });
       } else {
-        await productsAPI.create(formData);
+        await (productsAPI as any).create(formData);
         await Swal.fire({
           icon: 'success',
           title: '¡Producto creado!',
@@ -146,7 +146,7 @@ export default function Admin() {
     }
 
     try {
-      await productsAPI.delete(id);
+      await (productsAPI as any).delete(id);
       await Swal.fire({
         icon: 'success',
         title: '¡Producto eliminado!',
@@ -181,7 +181,7 @@ export default function Admin() {
     try {
       setUploadingImage(true);
       setError('');
-      const response = await productsAPI.uploadImage(file);
+      const response = await (productsAPI as any).uploadImage(file);
       setFormData({ ...formData, image_url: response.data.url });
     } catch (err: any) {
       await Swal.fire({
