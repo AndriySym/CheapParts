@@ -7,6 +7,10 @@ composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
 # Parse DATABASE_URL if it exists and set individual DB variables
 if [ -n "$DATABASE_URL" ]; then
     echo "Parsing DATABASE_URL..."
+    # Set DB_URL for Laravel (Laravel uses DB_URL)
+    export DB_URL="$DATABASE_URL"
+    
+    # Also parse and set individual variables as fallback
     # Parse postgresql://user:pass@host:port/database
     DB_URL_REGEX="postgresql://([^:]+):([^@]+)@([^:]+):([^/]+)/(.+)"
     if [[ $DATABASE_URL =~ $DB_URL_REGEX ]]; then
@@ -15,8 +19,8 @@ if [ -n "$DATABASE_URL" ]; then
         export DB_HOST="${BASH_REMATCH[3]}"
         export DB_PORT="${BASH_REMATCH[4]}"
         export DB_DATABASE="${BASH_REMATCH[5]}"
-        export DB_URL="$DATABASE_URL"
         echo "Database configuration parsed successfully"
+        echo "Host: $DB_HOST, Database: $DB_DATABASE"
     fi
 fi
 
