@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cartAPI, paymentAPI } from '../lib/api';
 import type { CartItem } from '../types';
+import Swal from 'sweetalert2';
 
 // Función para traducir categorías
 const translateCategory = (category: string): string => {
@@ -52,8 +53,25 @@ export default function Cart() {
     try {
       await cartAPI.updateItem(itemId, { quantity });
       await loadCart();
-    } catch (err) {
-      console.error('Error al actualizar cantidad', err);
+      // Emitir evento para actualizar el contador del carrito
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+    } catch (err: any) {
+      if (err.response?.data?.error === 'stock_insufficient') {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Stock Insuficiente',
+          text: err.response.data.message || 'No hay suficiente stock disponible para este producto.',
+          confirmButtonColor: '#3085d6',
+        });
+        // Recargar el carrito para actualizar las cantidades
+        await loadCart();
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.response?.data?.message || 'Error al actualizar la cantidad',
+        });
+      }
     }
   };
 
@@ -61,6 +79,8 @@ export default function Cart() {
     try {
       await cartAPI.removeItem(itemId);
       await loadCart();
+      // Emitir evento para actualizar el contador del carrito
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (err) {
       console.error('Error al eliminar item', err);
     }
@@ -126,10 +146,19 @@ export default function Cart() {
               {item.product.image_url && (
                 <div className="w-28 h-28 flex-shrink-0 bg-white border border-gray-100 rounded-lg p-2 flex items-center justify-center">
                   <img
-                    src={`http://localhost:8000${item.product.image_url}`}
+                    src={`http://localhost:8000${item.product.image_url!}`}
                     alt={item.product.name}
                     className="max-w-full max-h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const placeholder = target.nextElementSibling as HTMLElement;
+                      if (placeholder) placeholder.style.display = 'flex';
+                    }}
                   />
+                  <div className="hidden absolute inset-0 bg-gray-100 flex items-center justify-center text-gray-400 text-2xl">
+                    📦
+                  </div>
                 </div>
               )}
               <div className="flex-grow">

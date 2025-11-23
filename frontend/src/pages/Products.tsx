@@ -359,10 +359,22 @@ export default function Products() {
                     {product.image_url && (
                       <div className="relative h-64 overflow-hidden bg-white flex items-center justify-center p-4">
                         <img
-                          src={`http://localhost:8000${product.image_url}`}
+                          src={`http://localhost:8000${product.image_url!}`}
                           alt={product.name}
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const placeholder = target.nextElementSibling as HTMLElement;
+                            if (placeholder) placeholder.style.display = 'flex';
+                          }}
                         />
+                        <div className="hidden absolute inset-0 bg-gray-100 flex items-center justify-center text-gray-400">
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">📦</div>
+                            <div className="text-sm">Sin imagen</div>
+                          </div>
+                        </div>
                         {product.stock === 0 && (
                           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                             <span className="text-white font-bold text-lg">Sin Stock</span>
@@ -384,9 +396,15 @@ export default function Products() {
                         <p className="text-blue-600 font-bold text-xl">
                           {(product.price_cents / 100).toFixed(2)} €
                         </p>
-                        <p className="text-xs text-gray-500">
-                          Stock: {product.stock}
-                        </p>
+                        {product.stock > 0 ? (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                            Disponible
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                            Sin stock
+                          </span>
+                        )}
                       </div>
                     </div>
                   </Link>

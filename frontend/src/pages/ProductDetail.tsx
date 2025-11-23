@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productsAPI, cartAPI } from '../lib/api';
 import type { Product } from '../types';
+import Swal from 'sweetalert2';
 
 // Función para traducir categorías
 const translateCategory = (category: string): string => {
@@ -35,6 +36,13 @@ export default function ProductDetail() {
     }
   }, [id]);
 
+  // Ajustar cantidad si el stock cambia
+  useEffect(() => {
+    if (product && quantity > product.stock) {
+      setQuantity(product.stock > 0 ? product.stock : 1);
+    }
+  }, [product, quantity]);
+
   const loadProduct = async (productId: number) => {
     try {
       setLoading(true);
@@ -58,10 +66,25 @@ export default function ProductDetail() {
     try {
       setAdding(true);
       await cartAPI.addItem({ product_id: product!.id, quantity });
-      alert('Producto añadido al carrito');
-    } catch (err) {
-      alert('Error al añadir al carrito');
-      console.error(err);
+      // Emitir evento personalizado para actualizar el contador del carrito
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      // Recargar el producto para actualizar el stock
+      await loadProduct(product!.id);
+    } catch (err: any) {
+      if (err.response?.data?.error === 'stock_insufficient') {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Stock Insuficiente',
+          text: err.response.data.message || 'No hay suficiente stock disponible para este producto.',
+          confirmButtonColor: '#3085d6',
+        });
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.response?.data?.message || 'Error al añadir al carrito',
+        });
+      }
     } finally {
       setAdding(false);
     }
@@ -75,11 +98,25 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-white rounded-lg shadow-lg p-8 flex items-center justify-center">
           {product.image_url && (
-            <img
-              src={`http://localhost:8000${product.image_url}`}
-              alt={product.name}
-              className="max-w-full max-h-96 object-contain"
-            />
+            <>
+              <img
+                src={`http://localhost:8000${product.image_url!}`}
+                alt={product.name}
+                className="max-w-full max-h-96 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const placeholder = target.nextElementSibling as HTMLElement;
+                  if (placeholder) placeholder.style.display = 'flex';
+                }}
+              />
+              <div className="hidden bg-gray-100 flex items-center justify-center text-gray-400 w-full h-96">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📦</div>
+                  <div className="text-lg">Sin imagen disponible</div>
+                </div>
+              </div>
+            </>
           )}
         </div>
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -116,7 +153,8 @@ export default function ProductDetail() {
                 <span className="px-6 py-2 font-semibold">{quantity}</span>
                 <button
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-r-lg transition"
+                  disabled={quantity >= product.stock}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-r-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   +
                 </button>
