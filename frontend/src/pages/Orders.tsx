@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ordersAPI, BASE_URL } from '../lib/api';
+import { ordersAPI } from '../lib/api';
 import type { Order } from '../types';
 
 // Función para traducir categorías
@@ -169,7 +169,7 @@ export default function Orders() {
                     {item.product.image_url && (
                       <div className="w-20 h-20 flex-shrink-0 bg-white border border-gray-100 rounded-lg p-2 flex items-center justify-center relative">
                         <img
-                          src={`${BASE_URL}${item.product.image_url}`}
+                          src={`http://localhost:8000${item.product.image_url}`}
                           alt={item.product.name}
                           className="max-w-full max-h-full object-contain"
                           onError={(e) => {

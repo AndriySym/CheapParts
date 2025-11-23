@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { chatAPI, productsAPI, BASE_URL } from '../lib/api';
+import { chatAPI, productsAPI } from '../lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -330,7 +330,7 @@ export default function Chat() {
                     {foundProduct.image_url && (
                       <div className="relative w-16 h-16 flex-shrink-0">
                         <img
-                          src={`${BASE_URL}${foundProduct.image_url}`}
+                          src={`http://localhost:8000${foundProduct.image_url}`}
                           alt={foundProduct.name}
                           className="w-full h-full object-contain rounded"
                           onError={(e) => {

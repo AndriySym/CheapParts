@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { productsAPI, BASE_URL } from '../lib/api';
+import { productsAPI } from '../lib/api';
 import type { Product } from '../types';
 
 interface PaginationMeta {
@@ -360,7 +360,7 @@ export default function Products() {
                     {product.image_url && (
                       <div className="relative h-64 overflow-hidden bg-white flex items-center justify-center p-4">
                         <img
-                          src={`${BASE_URL}${product.image_url!}`}
+                          src={`http://localhost:8000${product.image_url!}`}
                           alt={product.name}
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
