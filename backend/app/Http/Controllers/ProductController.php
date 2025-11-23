@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -103,16 +104,82 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        abort(405);
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'stock' => ['required', 'integer', 'min:0'],
+            'brand' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
+            'image_url' => ['nullable', 'string'],
+            'price_cents' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $product = Product::create($validated);
+
+        return response()->json($product, 201);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product)
     {
-        abort(405);
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'stock' => ['sometimes', 'integer', 'min:0'],
+            'brand' => ['sometimes', 'string', 'max:255'],
+            'category' => ['sometimes', 'string', 'max:255'],
+            'image_url' => ['nullable', 'string'],
+            'price_cents' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
+        // Si se está cambiando la imagen, eliminar la imagen antigua
+        if (isset($validated['image_url']) && $product->image_url && $product->image_url !== $validated['image_url']) {
+            $this->deleteImageFile($product->image_url);
+        }
+
+        $product->update($validated);
+
+        return response()->json($product);
     }
 
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
-        abort(405);
+        // Eliminar la imagen del producto si existe
+        if ($product->image_url) {
+            $this->deleteImageFile($product->image_url);
+        }
+
+        $product->delete();
+
+        return response()->json(['message' => 'Producto eliminado correctamente'], 200);
+    }
+
+    /**
+     * Elimina un archivo de imagen del storage
+     */
+    private function deleteImageFile(string $imageUrl): void
+    {
+        // Convertir /storage/products/filename.jpg a products/filename.jpg
+        if (str_starts_with($imageUrl, '/storage/')) {
+            $path = str_replace('/storage/', '', $imageUrl);
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+        ]);
+
+        $image = $request->file('image');
+        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $path = $image->storeAs('products', $filename, 'public');
+
+        return response()->json([
+            'url' => '/storage/' . $path,
+            'message' => 'Imagen subida correctamente',
+        ]);
     }
 }

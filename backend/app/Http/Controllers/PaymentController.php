@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
@@ -101,7 +106,80 @@ class PaymentController extends Controller
         }
 
         try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['error' => 'Usuario no autenticado'], 401);
+            }
+
             $session = Session::retrieve($sessionId);
+            
+            // Verificar si el pago fue exitoso
+            if ($session->payment_status === 'paid') {
+                // Verificar si el pedido ya existe (evitar duplicados)
+                $existingOrder = Order::where('stripe_session_id', $sessionId)->first();
+                
+                if (!$existingOrder) {
+                    // Obtener items del carrito antes de limpiarlo
+                    $cartItems = CartItem::with('product')
+                        ->where('user_id', $user->id)
+                        ->get();
+                    
+                    if ($cartItems->isEmpty()) {
+                        Log::warning('Cart is empty when creating order', [
+                            'user_id' => $user->id,
+                            'session_id' => $sessionId
+                        ]);
+                    } else {
+                        // Calcular el total
+                        $totalCents = $cartItems->sum(function ($item) {
+                            return $item->product->price_cents * $item->quantity;
+                        });
+                        
+                        // Crear el pedido
+                        DB::transaction(function () use ($user, $session, $cartItems, $totalCents) {
+                            // Verificar stock antes de crear el pedido
+                            foreach ($cartItems as $cartItem) {
+                                $product = $cartItem->product;
+                                if ($product->stock < $cartItem->quantity) {
+                                    throw new \Exception("Stock insuficiente para el producto: {$product->name}. Stock disponible: {$product->stock}, solicitado: {$cartItem->quantity}");
+                                }
+                            }
+                            
+                            $order = Order::create([
+                                'user_id' => $user->id,
+                                'total_cents' => $totalCents,
+                                'status' => 'completed',
+                                'stripe_session_id' => $session->id,
+                                'stripe_payment_intent_id' => $session->payment_intent ?? null,
+                            ]);
+                            
+                            // Crear los items del pedido y descontar stock
+                            foreach ($cartItems as $cartItem) {
+                                OrderItem::create([
+                                    'order_id' => $order->id,
+                                    'product_id' => $cartItem->product_id,
+                                    'quantity' => $cartItem->quantity,
+                                    'price_cents' => $cartItem->product->price_cents,
+                                ]);
+                                
+                                // Descontar stock del producto
+                                $product = Product::find($cartItem->product_id);
+                                $product->decrement('stock', $cartItem->quantity);
+                            }
+                            
+                            // Limpiar el carrito
+                            CartItem::where('user_id', $user->id)->delete();
+                            
+                            Log::info('Order created successfully', [
+                                'order_id' => $order->id,
+                                'user_id' => $user->id,
+                                'session_id' => $session->id,
+                                'total' => $totalCents
+                            ]);
+                        });
+                    }
+                }
+            }
             
             return response()->json([
                 'success' => true,
@@ -137,14 +215,74 @@ class PaymentController extends Controller
 
             if ($event->type === 'checkout.session.completed') {
                 $session = $event->data->object;
+                $userId = $session->metadata->user_id ?? null;
                 
-                Log::info('Payment successful', [
+                Log::info('Payment successful via webhook', [
                     'session_id' => $session->id,
-                    'user_id' => $session->metadata->user_id ?? null,
+                    'user_id' => $userId,
                     'amount' => $session->amount_total,
                 ]);
                 
-                // Aquí podrías crear el pedido en la base de datos
+                if ($userId && $session->payment_status === 'paid') {
+                    // Verificar si el pedido ya existe (evitar duplicados)
+                    $existingOrder = Order::where('stripe_session_id', $session->id)->first();
+                    
+                    if (!$existingOrder) {
+                        // Obtener items del carrito
+                        $cartItems = CartItem::with('product')
+                            ->where('user_id', $userId)
+                            ->get();
+                        
+                        if (!$cartItems->isEmpty()) {
+                            // Calcular el total
+                            $totalCents = $cartItems->sum(function ($item) {
+                                return $item->product->price_cents * $item->quantity;
+                            });
+                            
+                            // Crear el pedido
+                            DB::transaction(function () use ($userId, $session, $cartItems, $totalCents) {
+                                // Verificar stock antes de crear el pedido
+                                foreach ($cartItems as $cartItem) {
+                                    $product = $cartItem->product;
+                                    if ($product->stock < $cartItem->quantity) {
+                                        throw new \Exception("Stock insuficiente para el producto: {$product->name}. Stock disponible: {$product->stock}, solicitado: {$cartItem->quantity}");
+                                    }
+                                }
+                                
+                                $order = Order::create([
+                                    'user_id' => $userId,
+                                    'total_cents' => $totalCents,
+                                    'status' => 'completed',
+                                    'stripe_session_id' => $session->id,
+                                    'stripe_payment_intent_id' => $session->payment_intent ?? null,
+                                ]);
+                                
+                                // Crear los items del pedido y descontar stock
+                                foreach ($cartItems as $cartItem) {
+                                    OrderItem::create([
+                                        'order_id' => $order->id,
+                                        'product_id' => $cartItem->product_id,
+                                        'quantity' => $cartItem->quantity,
+                                        'price_cents' => $cartItem->product->price_cents,
+                                    ]);
+                                    
+                                    // Descontar stock del producto
+                                    $product = Product::find($cartItem->product_id);
+                                    $product->decrement('stock', $cartItem->quantity);
+                                }
+                                
+                                // Limpiar el carrito
+                                CartItem::where('user_id', $userId)->delete();
+                                
+                                Log::info('Order created via webhook', [
+                                    'order_id' => $order->id,
+                                    'user_id' => $userId,
+                                    'session_id' => $session->id
+                                ]);
+                            });
+                        }
+                    }
+                }
             }
 
             return response()->json(['status' => 'success']);

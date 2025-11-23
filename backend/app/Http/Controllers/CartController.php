@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -29,13 +30,37 @@ class CartController extends Controller
         ]);
 
         $quantity = $validated['quantity'] ?? 1;
+        $product = Product::findOrFail($validated['product_id']);
 
-        $item = CartItem::firstOrNew([
-            'user_id' => $request->user()->id,
-            'product_id' => $validated['product_id'],
-        ]);
-        $item->quantity = ($item->exists ? $item->quantity : 0) + $quantity;
-        $item->save();
+        // Verificar stock disponible
+        $item = CartItem::where('user_id', $request->user()->id)
+            ->where('product_id', $validated['product_id'])
+            ->first();
+        
+        $currentQuantity = $item ? $item->quantity : 0;
+        $newQuantity = $currentQuantity + $quantity;
+
+        if ($product->stock < $newQuantity) {
+            return response()->json([
+                'error' => 'stock_insufficient',
+                'message' => $product->stock === 0 
+                    ? "Lo sentimos, este producto ya no está disponible. No hay stock disponible."
+                    : "Stock insuficiente. Solo hay {$product->stock} unidad(es) disponible(s).",
+                'available_stock' => $product->stock,
+            ], 422);
+        }
+
+        if ($item) {
+            $item->quantity = $newQuantity;
+            $item->save();
+        } else {
+            $item = CartItem::create([
+                'user_id' => $request->user()->id,
+                'product_id' => $validated['product_id'],
+                'quantity' => $quantity,
+            ]);
+        }
+
         return response()->json($item->load('product'));
     }
 
@@ -58,6 +83,20 @@ class CartController extends Controller
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1'],
         ]);
+
+        $product = $cartItem->product;
+
+        // Verificar stock disponible
+        if ($product->stock < $validated['quantity']) {
+            return response()->json([
+                'error' => 'stock_insufficient',
+                'message' => $product->stock === 0 
+                    ? "Lo sentimos, este producto ya no está disponible. No hay stock disponible."
+                    : "Stock insuficiente. Solo hay {$product->stock} unidad(es) disponible(s).",
+                'available_stock' => $product->stock,
+            ], 422);
+        }
+
         $cartItem->update(['quantity' => $validated['quantity']]);
         return $cartItem->load('product');
     }

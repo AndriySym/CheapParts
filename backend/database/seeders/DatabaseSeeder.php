@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        // Crear usuario admin
+        $this->call(AdminUserSeeder::class);
+
         $this->call(RealProductSeeder::class);
     }
 }
