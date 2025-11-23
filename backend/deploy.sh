@@ -4,21 +4,42 @@ set -e
 # Parse DATABASE_URL FIRST, before any Laravel commands
 if [ -n "$DATABASE_URL" ]; then
     echo "Parsing DATABASE_URL..."
+    echo "DATABASE_URL: ${DATABASE_URL:0:50}..." # Show first 50 chars for debugging
+    
     # Set DB_URL for Laravel (Laravel uses DB_URL)
     export DB_URL="$DATABASE_URL"
     
     # Also parse and set individual variables as fallback
     # Parse postgresql://user:pass@host:port/database
-    DB_URL_REGEX="postgresql://([^:]+):([^@]+)@([^:]+):([^/]+)/(.+)"
-    if [[ $DATABASE_URL =~ $DB_URL_REGEX ]]; then
-        export DB_USERNAME="${BASH_REMATCH[1]}"
-        export DB_PASSWORD="${BASH_REMATCH[2]}"
-        export DB_HOST="${BASH_REMATCH[3]}"
-        export DB_PORT="${BASH_REMATCH[4]}"
-        export DB_DATABASE="${BASH_REMATCH[5]}"
-        echo "Database configuration parsed successfully"
-        echo "Host: $DB_HOST, Database: $DB_DATABASE"
-    fi
+    # Remove protocol prefix first
+    DB_STRING="${DATABASE_URL#postgresql://}"
+    
+    # Extract components
+    DB_USER_PASS="${DB_STRING%%@*}"
+    DB_USERNAME="${DB_USER_PASS%%:*}"
+    DB_PASSWORD="${DB_USER_PASS#*:}"
+    
+    DB_HOST_PORT_DB="${DB_STRING#*@}"
+    DB_HOST_PORT="${DB_HOST_PORT_DB%%/*}"
+    DB_HOST="${DB_HOST_PORT%%:*}"
+    DB_PORT="${DB_HOST_PORT#*:}"
+    DB_DATABASE="${DB_HOST_PORT_DB#*/}"
+    
+    # Remove query string if present
+    DB_DATABASE="${DB_DATABASE%%\?*}"
+    
+    export DB_USERNAME
+    export DB_PASSWORD
+    export DB_HOST
+    export DB_PORT="${DB_PORT:-5432}"
+    export DB_DATABASE
+    export DB_CONNECTION="pgsql"
+    
+    echo "Database configuration parsed successfully"
+    echo "Host: $DB_HOST"
+    echo "Port: $DB_PORT"
+    echo "Database: $DB_DATABASE"
+    echo "Username: $DB_USERNAME"
 fi
 
 echo "Running composer..."
