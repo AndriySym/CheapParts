@@ -2,11 +2,10 @@ services:
   # Backend Laravel
   - type: web
     name: cheap-parts-backend
+    runtime: docker
     region: frankfurt
     plan: free
-    rootDir: backend
-    buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    dockerfilePath: backend/Dockerfile
     envVars:
       - key: APP_ENV
         value: production
@@ -36,6 +35,10 @@ services:
         fromDatabase:
           name: cheap-parts-db
           property: password
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cheap-parts-db
+          property: connectionString
       - key: FRONTEND_URL
         value: https://cheap-parts-frontend.onrender.com
 
