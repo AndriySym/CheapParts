@@ -16,15 +16,33 @@ services:
       - key: LOG_LEVEL
         value: error
       - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
         fromDatabase:
           name: cheap-parts-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cheap-parts-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: cheap-parts-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cheap-parts-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cheap-parts-db
+          property: password
       - key: FRONTEND_URL
         fromService:
           name: cheap-parts-frontend
           type: web
           property: host
-    healthCheckPath: /api/products
+    healthCheckPath: /up
 
   # Frontend React
   - type: web
@@ -32,19 +50,26 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: chmod +x build.sh && ./build.sh
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: cheap-parts-backend
+          type: web
+          property: host
+          suffix: /api
 
+databases:
   # Base de datos PostgreSQL
-  - type: postgresql
-    name: cheap-parts-db
-    region: frankfurt
+  - name: cheap-parts-db
     plan: free
+    region: frankfurt
+    postgresMajorVersion: "14"
     databaseName: cheapparts
-    databaseUser: cheapparts
-
-
+    user: cheapparts
