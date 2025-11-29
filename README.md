@@ -2,7 +2,7 @@
 
 Tienda online moderna de componentes informáticos construida con React (frontend) y Laravel (backend).
 
-🎯 **66 productos (ampliable)** | 🏷️ **10 categorías** | 💳 **Pagos con Stripe** | 🎨 **Diseño moderno**
+🎯 **171 productos** | 🏷️ **10 categorías** | 💳 **Pagos con Stripe** | 🎨 **Diseño moderno**
 
 ## Estructura del Proyecto
 
@@ -105,7 +105,7 @@ El frontend estará disponible en `http://localhost:5173`.
 
 ## Características del Proyecto
 
-✅ **66 productos** en 10 categorías
+✅ **171 productos** en 10 categorías
 ✅ **Filtros avanzados** por categoría, marca, precio y stock
 ✅ **Ordenamiento** por precio, nombre, stock
 ✅ **Autenticación** con tokens (Laravel Sanctum)
