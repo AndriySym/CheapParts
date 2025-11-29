@@ -47,6 +47,5 @@ databases:
   - name: cheap-parts-db
     plan: free
     region: frankfurt
-    postgresMajorVersion: "14"
     databaseName: cheapparts
     user: cheapparts
