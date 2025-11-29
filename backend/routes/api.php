@@ -17,6 +17,9 @@ Route::get('/products/{product}', [ProductController::class, 'show']);
 // Chat (público, no requiere autenticación)
 Route::post('/chat', [ChatController::class, 'chat']);
 
+// Payment - Checkout success (público porque Stripe redirige aquí)
+Route::get('/checkout/success', [PaymentController::class, 'checkoutSuccess']);
+
 // Auth
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -37,7 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Payment
     Route::post('/checkout/create-session', [PaymentController::class, 'createCheckoutSession']);
-    Route::get('/checkout/success', [PaymentController::class, 'checkoutSuccess']);
 
     // Admin routes - Product management
     Route::middleware('admin')->group(function () {

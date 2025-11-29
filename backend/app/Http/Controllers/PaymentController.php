@@ -106,12 +106,19 @@ class PaymentController extends Controller
         }
 
         try {
-            $user = $request->user();
-            if (!$user) {
-                return response()->json(['error' => 'Usuario no autenticado'], 401);
-            }
-
             $session = Session::retrieve($sessionId);
+            
+            // Obtener user_id del metadata de Stripe (ya que la ruta es pública)
+            $userId = $session->metadata->user_id ?? null;
+            
+            if (!$userId) {
+                return response()->json(['error' => 'No se pudo identificar al usuario'], 400);
+            }
+            
+            $user = \App\Models\User::find($userId);
+            if (!$user) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
             
             // Verificar si el pago fue exitoso
             if ($session->payment_status === 'paid') {
