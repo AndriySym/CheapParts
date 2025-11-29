@@ -58,7 +58,7 @@ export default function Products() {
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Actualizar filtros cuando cambie la URL
   useEffect(() => {
@@ -148,30 +148,30 @@ export default function Products() {
   if (error) return <div className="text-red-500 text-center py-8">{error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
       {/* Header con búsqueda */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4">Catálogo de Productos</h1>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Catálogo de Productos</h1>
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar productos..."
-            className="flex-1 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="px-4 sm:px-6 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
           >
             Buscar
           </button>
         </form>
       </div>
 
-      <div className="flex gap-6">
-        {/* Sidebar de filtros */}
-        <div className={`w-64 flex-shrink-0 ${showFilters ? 'block' : 'hidden'} lg:block`}>
+      <div className="flex gap-4 lg:gap-6">
+        {/* Sidebar de filtros - Desktop */}
+        <div className={`hidden lg:block w-64 flex-shrink-0`}>
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg shadow-md border border-gray-200 p-5 sticky top-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
@@ -321,24 +321,67 @@ export default function Products() {
               )}
             </div>
           </div>
-        </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Grid de productos */}
-        <div className="flex-1">
-          {/* Toggle filtros en móvil */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="lg:hidden mb-4 px-4 py-2 bg-gray-200 rounded-lg"
-          >
-            {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
-          </button>
-
-          {/* Contador de resultados */}
+          {/* Contador de resultados - Desktop */}
           {pagination && (
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="hidden lg:block mb-4 text-sm text-gray-600">
               Mostrando {products.length} de {pagination.total} productos
             </div>
           )}
+        <div className="flex-1 min-w-0">
+          {/* Toggle filtros en móvil */}
+          <div className="lg:hidden mb-4 flex items-center justify-between gap-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm sm:text-base flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
+            </button>
+            {pagination && (
+              <div className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                {pagination.total} productos
+              </div>
+            )}
+          </div>
+
+          {/* Filtros móvil - Drawer */}
+          {showFilters && (
+            <div className="lg:hidden fixed inset-0 z-50 lg:relative lg:inset-auto">
+              {/* Overlay */}
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 lg:hidden"
+                onClick={() => setShowFilters(false)}
+              />
+              {/* Drawer */}
+              <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto lg:relative lg:w-64 lg:shadow-md lg:rounded-lg lg:border lg:border-gray-200 lg:sticky lg:top-4 lg:h-auto">
+                <div className="p-4 sm:p-5">
+                  <div className="flex justify-between items-center mb-4 lg:mb-6">
+                    <h2 className="text-lg font-bold text-gray-800">Filtros</h2>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={clearFilters}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition"
+                      >
+                        Limpiar
+                      </button>
+                      <button
+                        onClick={() => setShowFilters(false)}
+                        className="lg:hidden p-1 hover:bg-gray-100 rounded"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
 
           {loading ? (
             <div className="text-center py-12">
@@ -357,7 +400,7 @@ export default function Products() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
                 {products.map((product) => (
                   <Link
                     key={product.id}
@@ -365,7 +408,7 @@ export default function Products() {
                     className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
                   >
                     {product.image_url && (
-                      <div className="relative h-64 overflow-hidden bg-white flex items-center justify-center p-4">
+                      <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden bg-white flex items-center justify-center p-3 sm:p-4">
                         <img
                           src={getImageUrl(product.image_url)}
                           alt={product.name}
@@ -390,18 +433,18 @@ export default function Products() {
                         )}
                       </div>
                     )}
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                    <div className="p-3 sm:p-4">
+                      <div className="flex justify-between items-start mb-2 gap-2">
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded flex-shrink-0">
                           {translateCategory(product.category)}
                         </span>
-                        <span className="text-xs text-gray-500">{product.brand}</span>
+                        <span className="text-xs text-gray-500 truncate ml-auto">{product.brand}</span>
                       </div>
-                      <h3 className="font-semibold text-base mb-2 line-clamp-2 group-hover:text-blue-600 transition">
+                      <h3 className="font-semibold text-sm sm:text-base mb-2 line-clamp-2 group-hover:text-blue-600 transition min-h-[2.5rem] sm:min-h-[3rem]">
                         {product.name}
                       </h3>
-                      <div className="flex justify-between items-end">
-                        <p className="text-blue-600 font-bold text-xl">
+                      <div className="flex justify-between items-end gap-2">
+                        <p className="text-blue-600 font-bold text-lg sm:text-xl">
                           {(product.price_cents / 100).toFixed(2)} €
                         </p>
                         {product.stock > 0 ? (
@@ -421,11 +464,11 @@ export default function Products() {
 
               {/* Paginación */}
               {pagination && pagination.last_page > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-8">
+                <div className="flex justify-center items-center gap-1 sm:gap-2 mt-6 sm:mt-8 flex-wrap">
                   <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
                   >
                     ← Anterior
                   </button>
@@ -447,7 +490,7 @@ export default function Products() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-3 py-2 rounded-lg transition ${
+                          className={`px-2 sm:px-3 py-2 text-sm sm:text-base rounded-lg transition ${
                             currentPage === pageNum
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -462,7 +505,7 @@ export default function Products() {
                   <button
                     onClick={() => setCurrentPage(p => Math.min(pagination.last_page, p + 1))}
                     disabled={currentPage === pagination.last_page}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                    className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
                   >
                     Siguiente →
                   </button>
