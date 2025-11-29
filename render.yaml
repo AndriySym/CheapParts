@@ -2,7 +2,6 @@ services:
   # Backend Laravel
   - type: web
     name: cheap-parts-backend
-    runtime: php
     region: frankfurt
     plan: free
     rootDir: backend
