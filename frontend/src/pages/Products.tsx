@@ -321,20 +321,16 @@ export default function Products() {
               )}
             </div>
           </div>
-                </div>
-              </div>
-            </div>
-          )}
+        </div>
 
+        {/* Grid de productos */}
+        <div className="flex-1 min-w-0">
           {/* Contador de resultados - Desktop */}
           {pagination && (
             <div className="hidden lg:block mb-4 text-sm text-gray-600">
               Mostrando {products.length} de {pagination.total} productos
             </div>
           )}
-
-        {/* Grid de productos */}
-        <div className="flex-1 min-w-0">
           {/* Toggle filtros en móvil */}
           <div className="lg:hidden mb-4 flex items-center justify-between gap-2">
             <button
