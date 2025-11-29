@@ -45,7 +45,7 @@ services:
     healthCheckPath: /up
 
   # Frontend React (Static Site)
-  - type: static
+  - type: static_site
     name: cheap-parts-frontend
     region: frankfurt
     plan: free
