@@ -148,7 +148,7 @@ export default function Products() {
   if (error) return <div className="text-red-500 text-center py-8">{error}</div>;
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 overflow-x-hidden max-w-full">
       {/* Header con búsqueda */}
       <div className="mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Catálogo de Productos</h1>
@@ -169,7 +169,7 @@ export default function Products() {
         </form>
       </div>
 
-      <div className="flex gap-4 lg:gap-6">
+      <div className="flex gap-4 lg:gap-6 overflow-x-hidden">
         {/* Sidebar de filtros - Desktop */}
         <div className={`hidden lg:block w-64 flex-shrink-0`}>
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg shadow-md border border-gray-200 p-5 sticky top-4">
@@ -358,7 +358,7 @@ export default function Products() {
                 onClick={() => setShowFilters(false)}
               />
               {/* Drawer */}
-              <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto lg:relative lg:w-64 lg:shadow-md lg:rounded-lg lg:border lg:border-gray-200 lg:sticky lg:top-4 lg:h-auto">
+              <div className="fixed right-0 top-0 h-full w-72 max-w-[90vw] bg-white shadow-xl overflow-y-auto lg:relative lg:w-64 lg:shadow-md lg:rounded-lg lg:border lg:border-gray-200 lg:sticky lg:top-4 lg:h-auto">
                 <div className="p-4 sm:p-5">
                   <div className="flex justify-between items-center mb-4 lg:mb-6">
                     <h2 className="text-lg font-bold text-gray-800">Filtros</h2>

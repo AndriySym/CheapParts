@@ -57,7 +57,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* Header moderno */}
       <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg sticky top-0 z-50">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
