@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paymentAPI, cartAPI } from '../lib/api';
+import { paymentAPI } from '../lib/api';
 
 interface SessionInfo {
   id: string;
@@ -29,15 +29,10 @@ export default function CheckoutSuccess() {
         const response = await paymentAPI.getCheckoutSuccess(sessionId);
         setSession(response.data.session);
         
-        // Vaciar el carrito después de un pago exitoso
-        try {
-          const cartResponse = await cartAPI.getItems();
-          const items = cartResponse.data;
-          for (const item of items) {
-            await cartAPI.removeItem(item.id);
-          }
-        } catch (cartErr) {
-          console.error('Error al limpiar el carrito:', cartErr);
+        // El backend ya limpia el carrito automáticamente al crear el pedido
+        // Solo emitimos el evento para actualizar el contador del carrito
+        if (response.data.session.payment_status === 'paid') {
+          window.dispatchEvent(new CustomEvent('cartUpdated'));
         }
         
       } catch (err: any) {
@@ -133,6 +128,13 @@ export default function CheckoutSuccess() {
 
           {/* Botones de acción */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <button
+              onClick={() => navigate('/orders')}
+              className="flex-1 bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-green-700 transition transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <span>📦</span>
+              <span>Ver Mis Pedidos</span>
+            </button>
             <button
               onClick={() => navigate('/products')}
               className="flex-1 bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition transform hover:scale-105 flex items-center justify-center gap-2"

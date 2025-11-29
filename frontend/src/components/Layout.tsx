@@ -1,18 +1,46 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { cartAPI } from '../lib/api';
+import { cartAPI, authAPI } from '../lib/api';
+import Chat from './Chat';
 
 export default function Layout() {
   const token = localStorage.getItem('auth_token');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     if (token) {
       loadCartCount();
+      checkAdmin();
+    } else {
+      setIsAdmin(false);
     }
   }, [token, location]);
+
+  const checkAdmin = async () => {
+    try {
+      const response = await authAPI.me();
+      setIsAdmin(response.data.is_admin || false);
+    } catch (err) {
+      setIsAdmin(false);
+    }
+  };
+
+  // Escuchar eventos de actualización del carrito
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      if (token) {
+        loadCartCount();
+      }
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [token]);
 
   const loadCartCount = async () => {
     try {
@@ -32,43 +60,57 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header moderno */}
       <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg sticky top-0 z-50">
-        <nav className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
+        <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-3 sm:py-4">
             {/* Logo */}
             <Link 
               to="/" 
-              className="text-2xl font-bold flex items-center gap-2 hover:opacity-90 transition"
+              className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-90 transition flex-shrink-0"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
               </svg>
-              CheapParts
+              <span className="whitespace-nowrap">CheapParts</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-wrap justify-end">
               <Link 
                 to="/products" 
-                className="hover:text-blue-200 transition font-medium"
+                className="hover:text-blue-200 transition font-medium whitespace-nowrap px-2 py-1"
               >
                 🛒 Productos
               </Link>
               {token ? (
                 <>
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      className="hover:text-blue-200 transition font-medium whitespace-nowrap px-2 py-1"
+                    >
+                      ⚙️ Admin
+                    </Link>
+                  )}
+                  <Link 
+                    to="/orders" 
+                    className="hover:text-blue-200 transition font-medium whitespace-nowrap px-2 py-1"
+                  >
+                    📦 Tus pedidos
+                  </Link>
                   <Link 
                     to="/cart" 
-                    className="relative hover:text-blue-200 transition font-medium flex items-center gap-1"
+                    className="relative hover:text-blue-200 transition font-medium flex items-center gap-1 whitespace-nowrap px-2 py-1"
                   >
                     🛍️ Carrito
                     {cartItemCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                         {cartItemCount}
                       </span>
                     )}
                   </Link>
                   <button 
                     onClick={handleLogout} 
-                    className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition"
+                    className="bg-white text-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium hover:bg-blue-50 transition whitespace-nowrap ml-2"
                   >
                     Cerrar Sesión
                   </button>
@@ -77,13 +119,13 @@ export default function Layout() {
                 <>
                   <Link 
                     to="/login" 
-                    className="hover:text-blue-200 transition font-medium"
+                    className="hover:text-blue-200 transition font-medium whitespace-nowrap px-2 py-1"
                   >
                     Iniciar Sesión
                   </Link>
                   <Link 
                     to="/register" 
-                    className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition"
+                    className="bg-white text-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium hover:bg-blue-50 transition whitespace-nowrap ml-2"
                   >
                     Registrarse
                   </Link>
@@ -94,7 +136,7 @@ export default function Layout() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-blue-700 transition"
+              className="lg:hidden p-2 rounded-lg hover:bg-blue-700 transition"
             >
               {mobileMenuOpen ? (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +152,7 @@ export default function Layout() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden pb-4 space-y-2 animate-fade-in">
+            <div className="lg:hidden pb-4 space-y-2 animate-fade-in">
               <Link 
                 to="/products" 
                 onClick={() => setMobileMenuOpen(false)}
@@ -120,6 +162,22 @@ export default function Layout() {
               </Link>
               {token ? (
                 <>
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block py-2 px-4 rounded hover:bg-blue-700 transition"
+                    >
+                      ⚙️ Admin
+                    </Link>
+                  )}
+                  <Link 
+                    to="/orders" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-2 px-4 rounded hover:bg-blue-700 transition"
+                  >
+                    📦 Tus pedidos
+                  </Link>
                   <Link 
                     to="/cart" 
                     onClick={() => setMobileMenuOpen(false)}
@@ -207,6 +265,9 @@ export default function Layout() {
           </div>
         </div>
       </footer>
+
+      {/* Chat Component */}
+      <Chat />
     </div>
   );
 }

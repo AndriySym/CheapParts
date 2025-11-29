@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { productsAPI } from '../lib/api';
+import { productsAPI, getImageUrl } from '../lib/api';
 import type { Product } from '../types';
 
 interface PaginationMeta {
@@ -113,9 +113,16 @@ export default function Products() {
         per_page: response.data.per_page,
         total: response.data.total,
       });
-    } catch (err) {
-      setError('Error al cargar productos');
-      console.error(err);
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || err?.message || 'Error al cargar productos';
+      setError(`Error al cargar productos: ${errorMessage}`);
+      console.error('Error detallado:', {
+        message: err?.message,
+        response: err?.response?.data,
+        status: err?.response?.status,
+        url: err?.config?.url,
+        baseURL: err?.config?.baseURL,
+      });
     } finally {
       setLoading(false);
     }
@@ -360,7 +367,7 @@ export default function Products() {
                     {product.image_url && (
                       <div className="relative h-64 overflow-hidden bg-white flex items-center justify-center p-4">
                         <img
-                          src={`http://localhost:8000${product.image_url!}`}
+                          src={getImageUrl(product.image_url)}
                           alt={product.name}
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {

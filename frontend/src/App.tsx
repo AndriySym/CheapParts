@@ -6,6 +6,8 @@ import ProductDetail from './pages/ProductDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
+import Orders from './pages/Orders';
+import Admin from './pages/Admin';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutCancel from './pages/CheckoutCancel';
 
@@ -20,6 +22,8 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="admin" element={<Admin />} />
           <Route path="checkout/success" element={<CheckoutSuccess />} />
           <Route path="checkout/cancel" element={<CheckoutCancel />} />
         </Route>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cartAPI, paymentAPI } from '../lib/api';
+import { cartAPI, paymentAPI, getImageUrl } from '../lib/api';
 import type { CartItem } from '../types';
 // @ts-ignore - sweetalert2 types are included in the package
 import Swal from 'sweetalert2';
@@ -148,7 +148,7 @@ export default function Cart() {
               {item.product.image_url && (
                 <div className="w-28 h-28 flex-shrink-0 bg-white border border-gray-100 rounded-lg p-2 flex items-center justify-center">
                   <img
-                    src={`http://localhost:8000${item.product.image_url!}`}
+                    src={getImageUrl(item.product.image_url)}
                     alt={item.product.name}
                     className="max-w-full max-h-full object-contain"
                     onError={(e) => {

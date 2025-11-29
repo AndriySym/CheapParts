@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productsAPI, authAPI } from '../lib/api';
+import { productsAPI, authAPI, getImageUrl } from '../lib/api';
 import type { Product } from '../types';
 // @ts-ignore - sweetalert2 types are included in the package
 import Swal from 'sweetalert2';
@@ -327,7 +327,7 @@ export default function Admin() {
                   {formData.image_url ? (
                     <div className="space-y-2">
                       <img
-                        src={`http://localhost:8000${formData.image_url}`}
+                        src={getImageUrl(formData.image_url)}
                         alt="Preview"
                         className="max-w-full max-h-48 mx-auto rounded-lg"
                         onError={(e) => {
@@ -455,7 +455,7 @@ export default function Admin() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {product.image_url ? (
                           <img
-                            src={`http://localhost:8000${product.image_url}`}
+                            src={getImageUrl(product.image_url)}
                             alt={product.name}
                             className="w-16 h-16 object-contain"
                             onError={(e) => {

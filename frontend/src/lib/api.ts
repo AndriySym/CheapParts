@@ -4,19 +4,47 @@ import axios from 'axios';
 const getApiUrl = () => {
   // Si está configurada explícitamente, usarla
   if (import.meta.env.VITE_API_URL) {
+    console.log('Using VITE_API_URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
   
   // Si estamos en producción (Render), usar la URL del backend
-  if (import.meta.env.PROD || window.location.hostname.includes('onrender.com')) {
-    return 'https://cheap-parts-backend.onrender.com/api';
+  const isProduction = import.meta.env.PROD || window.location.hostname.includes('onrender.com');
+  if (isProduction) {
+    const prodUrl = 'https://cheap-parts-backend.onrender.com/api';
+    console.log('Using production API URL:', prodUrl);
+    return prodUrl;
   }
   
   // Desarrollo local
-  return 'http://localhost:8000/api';
+  const devUrl = 'http://localhost:8000/api';
+  console.log('Using development API URL:', devUrl);
+  return devUrl;
 };
 
 const API_URL = getApiUrl();
+console.log('API Base URL configured:', API_URL);
+
+// Helper para obtener la URL base de las imágenes
+export const getImageUrl = (imagePath: string | null | undefined): string => {
+  if (!imagePath) return '';
+  
+  // Si ya es una URL completa, devolverla tal cual
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // Determinar la URL base según el entorno
+  const isProduction = import.meta.env.PROD || window.location.hostname.includes('onrender.com');
+  const baseUrl = isProduction 
+    ? 'https://cheap-parts-backend.onrender.com'
+    : 'http://localhost:8000';
+  
+  // Asegurarse de que imagePath comience con /
+  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  return `${baseUrl}${path}`;
+};
 
 export const api = axios.create({
   baseURL: API_URL,
