@@ -40,7 +40,7 @@ services:
         destination: /index.html
 
   # Base de datos PostgreSQL
-  - type: pg
+  - type: postgresql
     name: cheap-parts-db
     region: frankfurt
     plan: free
