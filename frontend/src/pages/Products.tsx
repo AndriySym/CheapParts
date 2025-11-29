@@ -332,6 +332,8 @@ export default function Products() {
               Mostrando {products.length} de {pagination.total} productos
             </div>
           )}
+
+        {/* Grid de productos */}
         <div className="flex-1 min-w-0">
           {/* Toggle filtros en móvil */}
           <div className="lg:hidden mb-4 flex items-center justify-between gap-2">
@@ -382,6 +384,147 @@ export default function Products() {
                     </div>
                   </div>
 
+                  {/* Categorías */}
+                  {availableFilters && availableFilters.categories.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="font-semibold mb-2 text-sm text-gray-800">Categoría</h3>
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => {
+                          setSelectedCategory(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      >
+                        <option value="">Todas</option>
+                        {availableFilters.categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {translateCategory(cat)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Marcas */}
+                  {availableFilters && availableFilters.brands.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="font-semibold mb-2 text-sm text-gray-800">Marca</h3>
+                      <select
+                        value={selectedBrand}
+                        onChange={(e) => {
+                          setSelectedBrand(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      >
+                        <option value="">Todas</option>
+                        {availableFilters.brands.map((brand) => (
+                          <option key={brand} value={brand}>
+                            {brand}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Rango de precio */}
+                  <div className="mb-6">
+                    <h3 className="font-semibold mb-2 text-sm text-gray-800">Precio (€)</h3>
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="number"
+                        placeholder="Mín"
+                        value={minPrice ? minPrice / 100 : ''}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseFloat(e.target.value) * 100 : undefined;
+                          setMinPrice(value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <span className="text-gray-500">-</span>
+                      <input
+                        type="number"
+                        placeholder="Máx"
+                        value={maxPrice ? maxPrice / 100 : ''}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseFloat(e.target.value) * 100 : undefined;
+                          setMaxPrice(value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stock */}
+                  <div className="mb-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={inStockOnly}
+                        onChange={(e) => {
+                          setInStockOnly(e.target.checked);
+                          setCurrentPage(1);
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Solo con stock</span>
+                    </label>
+                  </div>
+
+                  {/* Ordenar */}
+                  <div className="mb-4">
+                    <h3 className="font-semibold mb-2 text-sm text-gray-800">Ordenar por</h3>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => {
+                        setSortBy(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full px-3 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm mb-2"
+                    >
+                      <option value="">Por defecto</option>
+                      <option value="price">Precio</option>
+                      <option value="name">Nombre</option>
+                      <option value="stock">Stock</option>
+                    </select>
+                    {sortBy && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSortOrder('asc');
+                            setCurrentPage(1);
+                          }}
+                          className={`flex-1 px-3 py-1 text-xs rounded ${
+                            sortOrder === 'asc'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          Ascendente
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSortOrder('desc');
+                            setCurrentPage(1);
+                          }}
+                          className={`flex-1 px-3 py-1 text-xs rounded ${
+                            sortOrder === 'desc'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          Descendente
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center py-12">
