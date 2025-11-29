@@ -38,31 +38,7 @@ services:
           name: cheap-parts-db
           property: password
       - key: FRONTEND_URL
-        fromService:
-          name: cheap-parts-frontend
-          type: web
-          property: host
-    healthCheckPath: /up
-
-  # Frontend React (Static Site)
-  - type: static_site
-    name: cheap-parts-frontend
-    region: frankfurt
-    plan: free
-    rootDir: frontend
-    buildCommand: chmod +x build.sh && ./build.sh
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          name: cheap-parts-backend
-          type: web
-          property: host
-          suffix: /api
+        value: https://cheap-parts-frontend.onrender.com
 
 databases:
   # Base de datos PostgreSQL
