@@ -23,11 +23,14 @@ WORKDIR /var/www/html
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# Copy application files
+# Copy application files first (needed for composer scripts)
 COPY . .
+
+# Install dependencies (skip scripts that require artisan)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+
+# Run composer scripts after installation
+RUN composer dump-autoload --optimize
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
