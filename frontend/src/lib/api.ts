@@ -1,6 +1,22 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Detectar automáticamente la URL de la API según el entorno
+const getApiUrl = () => {
+  // Si está configurada explícitamente, usarla
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Si estamos en producción (Render), usar la URL del backend
+  if (import.meta.env.PROD || window.location.hostname.includes('onrender.com')) {
+    return 'https://cheap-parts-backend.onrender.com/api';
+  }
+  
+  // Desarrollo local
+  return 'http://localhost:8000/api';
+};
+
+const API_URL = getApiUrl();
 
 export const api = axios.create({
   baseURL: API_URL,
