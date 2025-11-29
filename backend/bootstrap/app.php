@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/webhook/stripe',
         ]);
         
+        // Habilitar CORS para todas las rutas API
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+        
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);

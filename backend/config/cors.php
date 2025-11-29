@@ -25,6 +25,9 @@ return [
         'https://cheap-parts-frontend.onrender.com',
         env('FRONTEND_URL', 'http://localhost:5173'),
     ],
+    
+    // Permitir cualquier origen en desarrollo (útil para debugging)
+    'allowed_origins_patterns' => env('APP_ENV') === 'local' ? ['*'] : [],
 
     'allowed_origins_patterns' => [],
 
