@@ -5,7 +5,8 @@ services:
     runtime: docker
     region: frankfurt
     plan: free
-    dockerfilePath: backend/Dockerfile
+    rootDir: backend
+    dockerfilePath: Dockerfile
     envVars:
       - key: APP_ENV
         value: production
