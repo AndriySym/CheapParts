@@ -42,12 +42,12 @@ class ChatController extends Controller
         }
 
         try {
-            $apiKey = env('GOOGLE_AI_API_KEY') ?: env('GEMINI_API_KEY') ?: env('GOOGLE_API_KEY');
+            $apiKey = config('services.google_ai.api_key');
             
             if (!$apiKey) {
                 return response()->json([
                     'error' => 'Google AI API key no configurada',
-                    'message' => 'Por favor, configura GOOGLE_AI_API_KEY en tu archivo .env'
+                    'message' => 'Por favor, configura GOOGLE_AI_API_KEY en las variables de entorno'
                 ], 500);
             }
 

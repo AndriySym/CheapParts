@@ -60,6 +60,10 @@ if [ -n "$DATABASE_URL" ]; then\n\
     export DB_CONNECTION="pgsql"\n\
 fi\n\
 \n\
+# Clear and cache config to ensure env vars are loaded\n\
+php artisan config:clear || true\n\
+php artisan config:cache || true\n\
+\n\
 # Run migrations and seeders\n\
 php artisan migrate --force || true\n\
 php artisan db:seed --force || true\n\

@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    'google_ai' => [
+        'api_key' => env('GOOGLE_AI_API_KEY') ?: env('GEMINI_API_KEY') ?: env('GOOGLE_API_KEY'),
+    ],
+
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
