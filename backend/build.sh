@@ -30,3 +30,4 @@ php artisan view:cache
 
 echo "✅ Build completado!"
 
+
