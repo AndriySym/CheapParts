@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Habilitar CORS para todas las rutas API
         $middleware->api(prepend: [
-            \Illuminate\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\HandleCors::class,
         ]);
         
         $middleware->alias([
