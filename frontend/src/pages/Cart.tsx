@@ -150,6 +150,8 @@ export default function Cart() {
                   <img
                     src={getImageUrl(item.product.image_url)}
                     alt={item.product.name}
+                    loading="lazy"
+                    decoding="async"
                     className="max-w-full max-h-full object-contain"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;

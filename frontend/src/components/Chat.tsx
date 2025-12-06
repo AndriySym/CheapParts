@@ -332,6 +332,8 @@ export default function Chat() {
                         <img
                           src={getImageUrl(foundProduct.image_url)}
                           alt={foundProduct.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain rounded"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;

@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+        
+        // Aplicar caché de imágenes a las rutas de storage
+        $middleware->web(append: [
+            \App\Http\Middleware\CacheImages::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

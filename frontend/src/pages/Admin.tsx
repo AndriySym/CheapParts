@@ -457,6 +457,8 @@ export default function Admin() {
                           <img
                             src={getImageUrl(product.image_url)}
                             alt={product.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-16 h-16 object-contain"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;

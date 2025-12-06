@@ -551,6 +551,8 @@ export default function Products() {
                         <img
                           src={getImageUrl(product.image_url)}
                           alt={product.name}
+                          loading="lazy"
+                          decoding="async"
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
