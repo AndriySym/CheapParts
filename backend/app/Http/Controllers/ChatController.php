@@ -25,20 +25,20 @@ class ChatController extends Controller
             ->get();
 
         // Agrupar por categoría y tomar productos de cada categoría
-        // REDUCIDO para ahorrar tokens y evitar límites de cuota
         $productsByCategory = $allProducts->groupBy('category');
         $products = collect();
         
-        // Tomar menos productos de cada categoría para reducir el uso de tokens
+        // Tomar más productos de cada categoría para tener mejor contexto (especialmente los periféricos)
         foreach ($productsByCategory as $category => $categoryProducts) {
-            // Reducir el límite: máximo 10 productos por categoría
-            $limit = $category === 'Peripherals' ? 15 : 8;
+            // Tomar más productos de Peripherals ya que incluye muchos tipos diferentes
+            $limit = $category === 'Peripherals' ? 30 : 15;
             $products = $products->merge($categoryProducts->take($limit));
         }
         
-        // Limitar el total a 80 productos máximo (antes eran 150)
-        if ($products->count() > 80) {
-            $products = $products->take(80);
+        // Si aún no tenemos suficientes, añadir más productos aleatorios
+        if ($products->count() < 150) {
+            $remaining = $allProducts->diff($products)->shuffle()->take(150 - $products->count());
+            $products = $products->merge($remaining);
         }
 
         try {
@@ -57,8 +57,8 @@ class ChatController extends Controller
             // Construir el historial de conversación
             $fullPrompt = $systemContext . "\n\n";
             
-            // Añadir historial reciente (últimos 3 intercambios para ahorrar tokens)
-            $recentHistory = array_slice($conversationHistory, -6);
+            // Añadir historial reciente (últimos 4 intercambios)
+            $recentHistory = array_slice($conversationHistory, -8);
             foreach ($recentHistory as $msg) {
                 if ($msg['role'] === 'user') {
                     $fullPrompt .= "Usuario: " . $msg['content'] . "\n\n";
@@ -134,8 +134,8 @@ class ChatController extends Controller
             
             for ($attempt = 0; $attempt <= $maxRetries; $attempt++) {
                 if ($attempt > 0) {
-                    // Esperar antes de reintentar (backoff exponencial)
-                    $waitTime = $retryDelay * pow(2, $attempt - 1);
+                    // Esperar antes de reintentar (backoff exponencial más largo)
+                    $waitTime = $retryDelay * pow(2, $attempt - 1); // 5s, 10s, 20s...
                     Log::info("Reintentando solicitud a Google AI (intento {$attempt}/{$maxRetries}) después de {$waitTime} segundos...");
                     sleep($waitTime);
                 }
@@ -158,7 +158,7 @@ class ChatController extends Controller
                             'temperature' => 0.7,
                             'topK' => 40,
                             'topP' => 0.95,
-                            'maxOutputTokens' => 512, // Reducido de 1024 a 512 para ahorrar tokens
+                            'maxOutputTokens' => 1024,
                         ],
                     ]);
                 
